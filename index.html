@@ -1,73 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Age Calculator</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/866a5c8a79.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container light-theme">
         <div class="calculator">
-            <h1><span>Age<br>Calculator</span></h1>
+            <h1>Age <span>Calculator</span></h1>
             <div class="input-box">
                 <input type="date" id="date">
                 <button onclick="calculateAge()">Calculate</button>
             </div>
-            <p id="result"></p>
+            <p id="result">Enter your birthdate to calculate your age.</p>
+            <div class="theme-toggle">
+                <button onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+            </div>
         </div>
-        <div class="copyright">
-            <p>Created by Mihir Ginde <a href="https://www.linkedin.com/in/mihir-ginde-4845a7260" target="_blank"><i class="fa-brands fa-linkedin"></i></a></p>
-        </div>
-        
+    </div>
+
+    <div class="copyright">
+        <p>Created by <b>Mihir Ginde</b>
+            <a href="https://www.linkedin.com/in/mihir-ginde-4845a7260" target="_blank">
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+        </p>
     </div>
 
 <script>
-let userInput = document.getElementById("date");
-userInput.max = new Date().toISOString().split("T")[0];
-let result = document.getElementById("result");
+    let userInput = document.getElementById("date");
+    userInput.max = new Date().toISOString().split("T")[0];
+    let result = document.getElementById("result");
 
-function calculateAge(){
-    let birthDate = new Date(userInput.value);
+    function calculateAge() {
+        let birthDate = new Date(userInput.value);
+        if (!userInput.value) {
+            result.innerHTML = "Please select a valid birthdate.";
+            return;
+        }
 
-    let d1 = birthDate.getDate();
-    let m1 = birthDate.getMonth() + 1;
-    let y1 = birthDate.getFullYear();
+        let today = new Date();
+        let ageYears = today.getFullYear() - birthDate.getFullYear();
+        let ageMonths = today.getMonth() - birthDate.getMonth();
+        let ageDays = today.getDate() - birthDate.getDate();
 
-    let today = new Date();
+        if (ageDays < 0) {
+            ageMonths--;
+            ageDays += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+        if (ageMonths < 0) {
+            ageYears--;
+            ageMonths += 12;
+        }
 
-    let d2 = today.getDate();
-    let m2 = today.getMonth() + 1;
-    let y2 = today.getFullYear();
-
-    let d3, m3, y3;
-
-    y3 = y2 - y1;
-
-    if(m2 >= m1){
-        m3 = m2 - m1;
-    }else{
-        y3--;
-        m3 = 12 + m2 - m1;
+        result.innerHTML = `You are <span>${ageYears}</span> years, <span>${ageMonths}</span> months, and <span>${ageDays}</span> days old.`;
     }
 
-    if(d2 >= d1){
-        d3 = d2 - d1;
-    }else{
-        m3--;
-        d3 = getDaysInMonth(y1, m1) + d2 - d1;
+    function openDatePicker() {
+        document.getElementById("date").showPicker();
     }
-    if(m3 < 0){
-        m3 = 11;
-        y3--;
-    }
-    result.innerHTML = `You are <span>${y3}</span> years, <span>${m3}</span> months and <span>${d3}</span> days old.`;
-}
 
-function getDaysInMonth(year, month){
-    return new Date(year, month, 0).getDate();
-}
+    function toggleTheme() {
+        let container = document.querySelector(".container");
+        let button = document.querySelector(".theme-toggle button");
+        let copyright = document.querySelector(".copyright");
+
+        if (container.classList.contains("light-theme")) {
+            container.classList.replace("light-theme", "dark-theme");
+            button.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            copyright.classList.replace("light-footer", "dark-footer");
+            localStorage.setItem("theme", "dark");
+        } else {
+            container.classList.replace("dark-theme", "light-theme");
+            button.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            copyright.classList.replace("dark-footer", "light-footer");
+            localStorage.setItem("theme", "light");
+        }
+    }
+
+    window.onload = () => {
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.querySelector(".container").classList.add(savedTheme + "-theme");
+        document.querySelector(".copyright").classList.add(savedTheme + "-footer");
+
+        if (savedTheme === "dark") {
+            document.querySelector(".theme-toggle button").innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+        }
+    };
 </script>
-
 </body>
 </html>
